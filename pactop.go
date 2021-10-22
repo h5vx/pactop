@@ -37,9 +37,6 @@ func main() {
 		panic(e)
 	}
 
-	cNum := color.New(color.FgYellow).SprintFunc()
-	cPkg := color.New(color.FgBlue).Add(color.Bold).SprintFunc()
-
 	packagesBySize := db.PkgCache().SortBySize().Slice()
 
 	if isFlagPassed("top") {
@@ -50,17 +47,24 @@ func main() {
 		}
 	}
 
+	printPkg := func(n int, pkg alpm.IPackage) {
+		cNum := color.New(color.FgYellow).SprintFunc()
+		cPkg := color.New(color.FgBlue).Add(color.Bold).SprintFunc()
+
+		num := fmt.Sprintf("%5d", n)
+		pkgName := fmt.Sprintf("%40s", pkg.Name())
+		humanSize := units.HumanSize(float64(pkg.ISize()))
+
+		fmt.Printf("%s  %s  %s\n", cNum(num), cPkg(pkgName), humanSize)
+	}
+
 	if *reverse {
 		for i := len(packagesBySize) - 1; i >= 0; i-- {
-			pkg := packagesBySize[i]
-			n := len(packagesBySize) - i
-			humanSize := units.HumanSize(float64(pkg.ISize()))
-			fmt.Printf("%s   %30s   %s\n", cNum(n), cPkg(pkg.Name()), humanSize)
+			printPkg(len(packagesBySize)-i, packagesBySize[i])
 		}
 	} else {
 		for i, pkg := range packagesBySize {
-			humanSize := units.HumanSize(float64(pkg.ISize()))
-			fmt.Printf("%s   %30s   %s\n", cNum(i+1), cPkg(pkg.Name()), humanSize)
+			printPkg(i+1, pkg)
 		}
 	}
 
