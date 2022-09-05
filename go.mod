@@ -1,4 +1,4 @@
-module github.com/h5vx/pacsize
+module github.com/h5vx/pactop
 
 go 1.17
 
